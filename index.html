@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DinoPark 🦖</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,Helvetica,sans-serif;background:#10251a;color:white;overflow:hidden}
+#topbar{height:65px;background:#173a27;border-bottom:2px solid #3d704d;display:flex;align-items:center;gap:12px;padding:8px 14px;position:relative;z-index:10}
+.logo{font-size:24px;font-weight:bold;white-space:nowrap}
+.stat{background:#0d291a;border:1px solid #315d40;border-radius:10px;padding:9px 13px;font-weight:bold}
+.money{color:#ffd75a}.spacer{flex:1}
+button{border:none;border-radius:9px;padding:9px 13px;background:#2d7747;color:white;font-weight:bold;cursor:pointer}
+button:hover{filter:brightness(1.15)}
+#main{height:calc(100vh - 65px);display:flex}
+#game{flex:1;position:relative;overflow:hidden;background:#6eae5c}
+#canvas{width:100%;height:100%;display:block}
+#panel{width:300px;background:#14291d;border-left:2px solid #315d40;padding:14px;overflow-y:auto}
+#panel h2{margin-bottom:10px}
+.card{background:#1b3827;border:1px solid #356248;border-radius:12px;padding:12px;margin-bottom:10px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.small{font-size:12px;color:#b9d1c0;margin-top:5px}
+.dinoEmoji{font-size:45px;text-align:center;margin-bottom:5px}
+.dinoName{font-size:18px;font-weight:bold}
+.buy{width:100%;margin-top:9px}
+#toast{position:absolute;top:20px;left:50%;transform:translateX(-50%);background:#10251a;border:1px solid #4f8b60;padding:11px 18px;border-radius:20px;display:none;z-index:20;box-shadow:0 5px 20px #0008}
+@media(max-width:850px){#panel{width:240px}.logo{font-size:18px}.stat{font-size:12px;padding:7px}}
+@media(max-width:650px){#panel{position:absolute;right:0;top:65px;bottom:0;z-index:15;width:230px}}
+</style>
+</head>
+<body>
+<div id="topbar">
+<div class="logo">🦖 DinoPark</div>
+<div class="stat">💰 <span id="money">5000</span></div>
+<div class="stat">👥 <span id="visitors">0</span></div>
+<div class="stat">🧬 <span id="dna">0</span></div>
+<div class="spacer"></div>
+<button onclick="saveGame()">💾 Guardar</button>
+<button onclick="newGame()">🔄 Nuevo</button>
+</div>
+
+<div id="main">
+<div id="game">
+<canvas id="canvas"></canvas>
+<div id="toast"></div>
+</div>
+
+<aside id="panel">
+<h2>🏗️ Construcción</h2>
+<div class="card">
+<div class="grid">
+<button onclick="setBuildMode('fence')">🧱 Cerca</button>
+<button onclick="setBuildMode('tree')">🌲 Árbol</button>
+<button onclick="setBuildMode('water')">💧 Lago</button>
+<button onclick="setBuildMode('food')">🍖 Comedero</button>
+<button onclick="setBuildMode('gate')">🚪 Portón</button>
+<button onclick="setBuildMode('entrance')">🏠 Entrada</button>
+</div>
+<p class="small">Elegí una construcción y después hacé clic en el mapa.</p>
+</div>
+
+<h2>🦕 Dinosaurios</h2>
+<div id="dinosaurs"></div>
+
+<div class="card">
+<h3>📊 Estado del parque</h3>
+<p>Visitantes: <b id="visitors2">0</b></p>
+<p>Ingresos: <b class="money" id="income">$0</b></p>
+<p>Reputación: <b id="reputation">50%</b></p>
+</div>
+</aside>
+</div>
+
+<script>
+const canvas=document.getElementById("canvas");
+const ctx=canvas.getContext("2d");
+let width=0,height=0;
+let buildMode=null;
+let money=5000,visitors=0,dna=0,reputation=50;
+let objects=[],dinosaurs=[];
+
+const species=[
+{name:"Triceratops",emoji:"🦏",cost:900,dna:10},
+{name:"Velociraptor",emoji:"🦎",cost:1400,dna:20},
+{name:"T-Rex",emoji:"🦖",cost:3000,dna:40}
+];
+
+function resizeCanvas(){
+const rect=canvas.getBoundingClientRect();
+canvas.width=rect.width*window.devicePixelRatio;
+canvas.height=rect.height*window.devicePixelRatio;
+width=rect.width;height=rect.height;
+ctx.setTransform(window.devicePixelRatio,0,0,window.devicePixelRatio,0,0);
+}
+window.addEventListener("resize",resizeCanvas);
+
+function toast(message){
+const element=document.getElementById("toast");
+element.textContent=message;
+element.style.display="block";
+clearTimeout(window.toastTimer);
+window.toastTimer=setTimeout(()=>{element.style.display="none"},1800);
+}
+
+function setBuildMode(mode){
+buildMode=mode;
+const names={fence:"🧱 Cerca",tree:"🌲 Árbol",water:"💧 Lago",food:"🍖 Comedero",gate:"🚪 Portón",entrance:"🏠 Entrada"};
+toast("Seleccionado: "+names[mode]);
+}
+
+const buildingCosts={fence:100,tree:40,water:150,food:120,gate:180,entrance:300};
+const buildingIcons={fence:"🧱",tree:"🌲",water:"💧",food:"🍖",gate:"🚪",entrance:"🏠"};
+
+canvas.addEventListener("click",function(event){
+if(!buildMode)return;
+const rect=canvas.getBoundingClientRect();
+const x=event.clientX-rect.left;
+const y=event.clientY-rect.top;
+const cost=buildingCosts[buildMode];
+
+if(money<cost){toast("💸 No tenés suficiente dinero.");return}
+money-=cost;
+objects.push({type:buildMode,x,y,icon:buildingIcons[buildMode]});
+
+if(buildMode==="entrance")visitors+=10;
+updateUI();
+toast("✅ Construcción realizada.");
+buildMode=null;
+});
+
+function buyDinosaur(index){
+const dinosaur=species[index];
+
+if(money<dinosaur.cost){toast("💸 No tenés suficiente dinero.");return}
+if(dna<dinosaur.dna){toast("🧬 Necesitás más ADN.");return}
+
+money-=dinosaur.cost;
+dna-=dinosaur.dna;
+
+dinosaurs.push({
+name:dinosaur.name,
+emoji:dinosaur.emoji,
+x:150+Math.random()*Math.max(100,width-300),
+y:120+Math.random()*Math.max(100,height-250),
+angle:Math.random()*Math.PI*2
+});
+
+reputation=Math.min(100,reputation+3);
+updateUI();
+toast(dinosaur.emoji+" ¡Nuevo "+dinosaur.name+"!");
+}
+
+function updateUI(){
+document.getElementById("money").textContent=Math.floor(money);
+document.getElementById("visitors").textContent=visitors;
+document.getElementById("visitors2").textContent=visitors;
+document.getElementById("dna").textContent=dna;
+document.getElementById("reputation").textContent=reputation+"%";
+document.getElementById("income").textContent="$"+Math.floor(visitors*8);
+
+const container=document.getElementById("dinosaurs");
+container.innerHTML="";
+
+species.forEach((dinosaur,index)=>{
+const card=document.createElement("div");
+card.className="card";
+card.innerHTML=`
+<div class="dinoEmoji">${dinosaur.emoji}</div>
+<div class="dinoName">${dinosaur.name}</div>
+<div class="small">💰 $${dinosaur.cost}<br>🧬 ADN ${dinosaur.dna}</div>
+<button class="buy" onclick="buyDinosaur(${index})">Comprar</button>
+`;
+container.appendChild(card);
+});
+}
+
+function drawPark(){
+ctx.clearRect(0,0,width,height);
+
+ctx.fillStyle="#73b55f";
+ctx.fillRect(0,0,width,height);
+
+ctx.fillStyle="#69a957";
+for(let x=20;x<width;x+=80){
+for(let y=20;y<height;y+=80){
+ctx.beginPath();
+ctx.arc(x,y,2,0,Math.PI*2);
+ctx.fill();
+}
+}
+
+ctx.fillStyle="#c6a875";
+ctx.fillRect(0,height/2-18,width,36);
+
+objects.forEach(object=>{
+ctx.font="34px Arial";
+ctx.textAlign="center";
+ctx.textBaseline="middle";
+ctx.fillText(object.icon,object.x,object.y);
+});
+
+dinosaurs.forEach(dinosaur=>{
+dinosaur.x+=Math.cos(dinosaur.angle)*0.15;
+dinosaur.y+=Math.sin(dinosaur.angle)*0.15;
+
+if(dinosaur.x<40||dinosaur.x>width-40)dinosaur.angle=Math.PI-dinosaur.angle;
+if(dinosaur.y<40||dinosaur.y>height-40)dinosaur.angle=-dinosaur.angle;
+
+ctx.font="44px Arial";
+ctx.textAlign="center";
+ctx.textBaseline="middle";
+ctx.fillText(dinosaur.emoji,dinosaur.x,dinosaur.y);
+});
+
+requestAnimationFrame(drawPark);
+}
+
+setInterval(function(){
+if(visitors){
+money+=visitors*2;
+dna+=Math.max(1,Math.floor(dinosaurs.length/2));
+visitors=Math.min(200,visitors+Math.floor(dinosaurs.length*.5));
+updateUI();
+}
+},30000);
+
+function saveGame(){
+const game={money,visitors,dna,reputation,objects,dinosaurs};
+localStorage.setItem("dinopark_save",JSON.stringify(game));
+toast("💾 Partida guardada.");
+}
+
+function loadGame(){
+const saved=localStorage.getItem("dinopark_save");
+if(!saved)return;
+
+try{
+const game=JSON.parse(saved);
+money=game.money??5000;
+visitors=game.visitors??0;
+dna=game.dna??0;
+reputation=game.reputation??50;
+objects=game.objects??[];
+dinosaurs=game.dinosaurs??[];
+}catch(error){
+console.log("No se pudo cargar la partida");
+}
+}
+
+function newGame(){
+if(!confirm("¿Querés comenzar un parque nuevo?"))return;
+localStorage.removeItem("dinopark_save");
+location.reload();
+}
+
+loadGame();
+resizeCanvas();
+updateUI();
+drawPark();
+</script>
+</body>
+</html>
