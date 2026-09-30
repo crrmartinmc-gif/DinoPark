@@ -254,8 +254,7 @@ camera.position.set(0, 72, 105);
 const renderer = new THREE.WebGLRenderer({antialias:true});
 renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));
 renderer.setSize(innerWidth,innerHeight);
-renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.shadowMap.enabled = false;
 document.getElementById("game").appendChild(renderer.domElement);
 
 /* LUZ */
@@ -503,7 +502,7 @@ makeFence(-20,-15,0);
 makeFence(20,-15,0);
 makeFence(0,-30,Math.PI/2);
 makeFence(0,0,Math.PI/2);
-\n/* ESPECIES */
+/* ESPECIES */
 const species=[
  {name:"Triceratops",emoji:"🦏",cost:500000,dna:1000},
  {name:"Velociraptor",emoji:"🦎",cost:800000,dna:2500},
