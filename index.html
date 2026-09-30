@@ -4,104 +4,187 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>DinoPark 3D - Modo Desarrollo</title>
+
 <style>
+:root{
+ --bg:#07110d;--panel:rgba(13,30,22,.86);--panel2:rgba(18,39,28,.92);
+ --line:rgba(255,255,255,.09);--text:#f4f8f3;--muted:#91a99a;
+ --green:#64d68a;--green2:#2c9b5b;--gold:#f5c85b;--blue:#67c7ff;
+ --danger:#ff6f70;--purple:#b996ff;
+}
 *{box-sizing:border-box}
-html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:Arial,sans-serif;background:#08120c;color:#fff}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:Inter,Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--text)}
 #game{position:fixed;inset:0}
-canvas{display:block}
+canvas{display:block;width:100%;height:100%}
+
+/* TOP BAR */
 #top{
- position:fixed;top:0;left:0;right:0;height:62px;z-index:20;
- display:flex;align-items:center;gap:9px;padding:8px 13px;
- background:linear-gradient(#10291bdd,#10291a99);
- backdrop-filter:blur(8px);border-bottom:1px solid #ffffff1c
+ position:fixed;top:0;left:0;right:0;height:70px;z-index:30;
+ display:flex;align-items:center;gap:10px;padding:10px 18px;
+ background:linear-gradient(180deg,rgba(5,17,11,.96),rgba(5,17,11,.72));
+ border-bottom:1px solid var(--line);backdrop-filter:blur(14px)
 }
-.logo{font-size:22px;font-weight:800;white-space:nowrap}
-.stat{background:#07160dbd;border:1px solid #ffffff18;border-radius:10px;padding:8px 11px;font-weight:700;white-space:nowrap}
-.money{color:#ffd65a}.dnaColor{color:#9ce7ff}.visColor{color:#b8f18a}
+.logoWrap{display:flex;align-items:center;gap:10px;min-width:245px}
+.logoIcon{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;
+ background:linear-gradient(135deg,#3fae69,#1d6740);font-size:23px;
+ box-shadow:0 6px 18px #0005}
+.logo{font-size:20px;font-weight:850;letter-spacing:-.5px}
+.sublogo{font-size:10px;color:var(--muted);margin-top:2px}
+.kpi{
+ min-width:145px;height:43px;padding:7px 12px;border:1px solid var(--line);
+ border-radius:12px;background:rgba(9,24,16,.8);display:flex;align-items:center;gap:9px
+}
+.kpiIcon{font-size:18px}.kpiLabel{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.7px}
+.kpiValue{font-size:14px;font-weight:800;margin-top:1px}
+.kpiValue.gold{color:var(--gold)}.kpiValue.blue{color:var(--blue)}.kpiValue.green{color:var(--green)}
 .spacer{flex:1}
-button{
- border:0;border-radius:9px;padding:8px 11px;background:#2d7d49;color:white;
- font-weight:700;cursor:pointer;box-shadow:0 2px 8px #0005
-}
-button:hover{filter:brightness(1.15)}
-button.active{outline:2px solid #dcffb6;background:#3d995b}
-#panel{
- position:fixed;right:13px;top:75px;width:290px;z-index:20;
- background:#10271aeb;border:1px solid #ffffff1b;border-radius:15px;
- padding:13px;backdrop-filter:blur(10px);box-shadow:0 12px 35px #0008;
- max-height:calc(100vh - 88px);overflow:auto
-}
-h2{font-size:16px;margin:4px 0 9px}
-h3{font-size:14px;margin:2px 0 7px}
-.card{background:#07160dd4;border:1px solid #ffffff12;border-radius:11px;padding:10px;margin-bottom:9px}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
-.small{font-size:11px;color:#b8cdbd;line-height:1.45}
-.dinoRow{display:flex;align-items:center;gap:8px;margin-bottom:8px}
-.dinoEmoji{font-size:29px;width:35px;text-align:center}
-.dinoRow button{margin-left:auto;padding:7px 8px;font-size:11px}
-.row{display:flex;justify-content:space-between;gap:8px;margin:5px 0;font-size:13px}
-.bar{height:7px;background:#14271a;border-radius:8px;overflow:hidden;margin-top:3px}
-.bar i{display:block;height:100%;background:#73c878;width:70%}
+.topBtn{height:40px;padding:0 13px;border:1px solid var(--line);border-radius:11px;
+ background:#173622;color:white;font-weight:750;cursor:pointer}
+.topBtn.primary{background:linear-gradient(135deg,#3eaa65,#247e4a)}
+.topBtn:hover{filter:brightness(1.12)}
+
+/* SIDE PANELS */
 #dashboard{
- position:fixed;left:13px;top:75px;width:245px;z-index:19;
- background:#10271ae8;border:1px solid #ffffff1b;border-radius:15px;
- padding:12px;backdrop-filter:blur(10px);box-shadow:0 12px 35px #0008
+ position:fixed;left:15px;top:84px;width:280px;z-index:20;
+ background:var(--panel);border:1px solid var(--line);border-radius:18px;
+ padding:14px;backdrop-filter:blur(15px);box-shadow:0 18px 50px #0008
 }
-#dashboard .title{font-weight:800;font-size:16px;margin-bottom:8px}
+#panel{
+ position:fixed;right:15px;top:84px;width:315px;z-index:20;
+ background:var(--panel);border:1px solid var(--line);border-radius:18px;
+ padding:14px;backdrop-filter:blur(15px);box-shadow:0 18px 50px #0008;
+ max-height:calc(100vh - 100px);overflow:auto
+}
+.sectionTitle{display:flex;align-items:center;justify-content:space-between;margin:2px 2px 10px}
+.sectionTitle b{font-size:14px}.sectionTitle span{font-size:10px;color:var(--muted)}
+.overview{
+ background:linear-gradient(135deg,rgba(44,155,91,.18),rgba(8,24,15,.7));
+ border:1px solid rgba(100,214,138,.16);border-radius:14px;padding:12px;margin-bottom:10px
+}
+.overTitle{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+.overBig{font-size:25px;font-weight:850;margin:3px 0}
+.overSmall{font-size:11px;color:#b6c9bb}
+.progress{height:7px;background:#122319;border-radius:99px;overflow:hidden;margin-top:9px}
+.progress i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#4fbd70,#9ce36b)}
+.statsGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.statCard{background:rgba(5,18,11,.66);border:1px solid var(--line);border-radius:12px;padding:10px}
+.statCard .ico{font-size:14px}.statCard .lbl{font-size:10px;color:var(--muted);margin-top:4px}
+.statCard .val{font-size:15px;font-weight:800;margin-top:2px}
+.activity{background:rgba(5,18,11,.55);border:1px solid var(--line);border-radius:12px;padding:11px}
+.activityRow{display:flex;gap:9px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.activityRow:last-child{border-bottom:0}.dot{width:8px;height:8px;border-radius:50%;background:var(--green);margin-top:4px;flex:none}
+.activityText{font-size:11px;line-height:1.35}.activityTime{font-size:9px;color:var(--muted);margin-top:2px}
+.card{
+ background:rgba(5,18,11,.66);border:1px solid var(--line);border-radius:13px;padding:10px;margin-bottom:9px
+}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+button{
+ border:0;border-radius:9px;padding:9px 8px;background:#236e42;color:#fff;
+ font-weight:750;cursor:pointer;font-size:11px
+}
+button:hover{filter:brightness(1.13)}
+button.active{outline:2px solid #b8f2bf;background:#3b9b5d}
+.lab{
+ background:linear-gradient(135deg,rgba(103,199,255,.12),rgba(8,20,15,.7));
+ border-color:rgba(103,199,255,.14)
+}
+.labHead{display:flex;justify-content:space-between;align-items:center}
+.labDNA{font-size:18px;font-weight:850;color:var(--blue)}
+.small{font-size:10px;color:var(--muted);line-height:1.45}
+.row{display:flex;justify-content:space-between;gap:8px;margin:5px 0;font-size:11px}
+.speciesCard{padding:9px}
+.dinoRow{display:flex;align-items:center;gap:8px}
+.dinoEmoji{font-size:27px;width:34px;text-align:center}
+.dinoName{font-size:12px;font-weight:800}.dinoMeta{font-size:9px;color:var(--muted);margin-top:2px}
+.dinoRow button{margin-left:auto;padding:7px 9px}
+.bar{height:5px;background:#132319;border-radius:99px;overflow:hidden;margin-top:5px}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,#4ab96b,#a5df6d)}
+.toolTitle{font-size:11px;font-weight:800;margin-bottom:7px}
+
+/* BOTTOM */
 #hint{
- position:fixed;left:13px;bottom:13px;z-index:20;
- background:#07160dd9;border:1px solid #ffffff18;border-radius:10px;
- padding:8px 11px;font-size:11px;color:#d6e6da
-}
-#toast{
- position:fixed;top:76px;left:50%;transform:translateX(-50%);
- z-index:50;display:none;background:#07160df2;border:1px solid #8acb91;
- padding:10px 16px;border-radius:22px;font-weight:700
+ position:fixed;left:50%;bottom:15px;transform:translateX(-50%);z-index:25;
+ background:rgba(7,19,12,.88);border:1px solid var(--line);border-radius:22px;
+ padding:9px 15px;font-size:10px;color:#c5d5ca;backdrop-filter:blur(10px)
 }
 #mode{
- position:fixed;bottom:13px;left:50%;transform:translateX(-50%);
- z-index:21;background:#10271ae8;border:1px solid #ffffff18;
- padding:9px 14px;border-radius:20px;font-size:12px
+ position:fixed;bottom:62px;left:50%;transform:translateX(-50%);z-index:25;
+ background:rgba(12,34,21,.93);border:1px solid rgba(100,214,138,.2);
+ padding:8px 14px;border-radius:20px;font-size:10px;box-shadow:0 8px 25px #0006
 }
-.dev{color:#ffdc70}
-@media(max-width:1000px){
- #dashboard{width:205px}.stat{font-size:11px;padding:7px}.logo{font-size:18px}
- #panel{width:250px}
+#toast{
+ position:fixed;top:84px;left:50%;transform:translateX(-50%);
+ z-index:50;display:none;background:#07160df5;border:1px solid #6ed58d;
+ padding:10px 17px;border-radius:24px;font-size:12px;font-weight:800;box-shadow:0 10px 30px #0007
 }
-@media(max-width:720px){
- #dashboard{display:none}
- #panel{width:245px}
- #hint{display:none}
+.devBadge{
+ position:fixed;right:18px;bottom:15px;z-index:25;font-size:9px;color:#f6d77a;
+ background:rgba(25,22,8,.86);border:1px solid rgba(245,200,91,.2);border-radius:12px;padding:7px 9px
+}
+hr{border:0;border-top:1px solid var(--line);margin:10px 0}
+@media(max-width:1100px){
+ .logoWrap{min-width:205px}.kpi{min-width:125px}
+ #dashboard{width:245px}#panel{width:285px}
+}
+@media(max-width:820px){
+ #dashboard{display:none}.logoWrap{min-width:auto}.sublogo{display:none}
+ .kpi{min-width:auto}.kpiLabel{display:none}.kpi{height:40px;padding:7px}
+ #panel{width:270px}
 }
 </style>
+
 </head>
 <body>
 
 <div id="game"></div>
 
+
 <div id="top">
-  <div class="logo">🦖 DinoPark 3D</div>
-  <div class="stat">💰 <span class="money" id="money">999999999</span></div>
-  <div class="stat">🧬 <span class="dnaColor" id="dna">999999</span></div>
-  <div class="stat">👥 <span class="visColor" id="visitors">500</span></div>
+  <div class="logoWrap">
+    <div class="logoIcon">🦖</div>
+    <div><div class="logo">DinoPark</div><div class="sublogo">CENTRO DE OPERACIONES · MODO DESARROLLO</div></div>
+  </div>
+  <div class="kpi"><div class="kpiIcon">💰</div><div><div class="kpiLabel">Presupuesto</div><div class="kpiValue gold" id="money">999999999</div></div></div>
+  <div class="kpi"><div class="kpiIcon">🧬</div><div><div class="kpiLabel">ADN</div><div class="kpiValue blue" id="dna">999999</div></div></div>
+  <div class="kpi"><div class="kpiIcon">👥</div><div><div class="kpiLabel">Visitantes</div><div class="kpiValue green" id="visitors">500</div></div></div>
   <div class="spacer"></div>
-  <button onclick="saveGame()">💾 Guardar</button>
-  <button onclick="addResources()">⚡ +Recursos</button>
+  <button class="topBtn" onclick="saveGame()">💾 Guardar</button>
+  <button class="topBtn primary" onclick="addResources()">⚡ Recursos</button>
 </div>
 
+
 <div id="dashboard">
-  <div class="title">📊 TABLERO DE CONTROL</div>
-  <div class="row"><span>🏞️ Parque</span><b id="parkLevel">Nivel 1</b></div>
-  <div class="row"><span>🦖 Dinosaurios</span><b id="dinoCount">0</b></div>
-  <div class="row"><span>🏗️ Construcciones</span><b id="buildCount">0</b></div>
-  <div class="row"><span>⭐ Reputación</span><b id="rep">75%</b></div>
-  <div class="row"><span>💵 Ingreso/min</span><b id="income">$0</b></div>
-  <hr style="border:0;border-top:1px solid #ffffff12">
-  <div class="small">MODO DESARROLLO: recursos altos para probar funciones y encontrar errores.</div>
+  <div class="sectionTitle"><b>📊 Centro de operaciones</b><span>EN VIVO</span></div>
+
+  <div class="overview">
+    <div class="overTitle">Estado general del parque</div>
+    <div class="overBig">Excelente · 75%</div>
+    <div class="overSmall">El parque está funcionando normalmente.</div>
+    <div class="progress"><i style="width:75%"></i></div>
+  </div>
+
+  <div class="statsGrid">
+    <div class="statCard"><div class="ico">🦖</div><div class="lbl">DINOSAURIOS</div><div class="val" id="dinoCount">0</div></div>
+    <div class="statCard"><div class="ico">🏗️</div><div class="lbl">EDIFICIOS</div><div class="val" id="buildCount">0</div></div>
+    <div class="statCard"><div class="ico">⭐</div><div class="lbl">REPUTACIÓN</div><div class="val" id="rep">75%</div></div>
+    <div class="statCard"><div class="ico">💵</div><div class="lbl">INGRESO / MIN</div><div class="val" id="income">$0</div></div>
+  </div>
+
+  <div class="sectionTitle"><b>⚡ Actividad reciente</b><span>AHORA</span></div>
+  <div class="activity">
+    <div class="activityRow"><div class="dot"></div><div><div class="activityText">Sistema de parque conectado</div><div class="activityTime">Hace unos segundos</div></div></div>
+    <div class="activityRow"><div class="dot"></div><div><div class="activityText">Laboratorio de ADN operativo</div><div class="activityTime">Listo para investigar</div></div></div>
+    <div class="activityRow"><div class="dot"></div><div><div class="activityText">Cámaras y seguridad activas</div><div class="activityTime">Estado normal</div></div></div>
+  </div>
+
+  <div class="card" style="margin-top:9px">
+    <div class="toolTitle">🛠️ MODO DESARROLLO</div>
+    <div class="small">Recursos ilimitados para probar construcciones, ADN, especies y errores antes de implementar la economía real.</div>
+  </div>
 </div>
 
 <div id="panel">
-  <h2>🏗️ Construcción</h2>
+  <div class="sectionTitle"><b>🏗️ Constructor</b><span>PARQUE</span></div>
   <div class="card">
     <div class="grid">
       <button onclick="setMode('fence')">🧱 Cerca</button>
@@ -114,19 +197,20 @@ h3{font-size:14px;margin:2px 0 7px}
     <div class="small" style="margin-top:8px">Seleccioná y hacé clic en el terreno.</div>
   </div>
 
-  <h2>🧬 Laboratorio / ADN</h2>
-  <div class="card">
-    <div class="row"><span>ADN disponible</span><b class="dnaColor" id="dnaPanel">999999</b></div>
+  <div class="sectionTitle"><b>🧬 Laboratorio genético</b><span>CIENCIA</span></div>
+  <div class="card lab">
+    <div class="labHead"><span class="small">ADN DISPONIBLE</span><span class="labDNA" id="dnaPanel">999999</span></div>
+    <div class="row" style="margin-top:8px"><span>Muestras</span><b style="display:none" id="dnaPanelOld">999999</b></div>
     <div class="row"><span>Muestras</span><b id="samples">2500</b></div>
     <button style="width:100%" onclick="researchDNA()">🔬 Investigar ADN</button>
     <div class="small">En modo desarrollo el ADN se repone para poder probar todas las especies.</div>
   </div>
 
-  <h2>🦕 Especies</h2>
+  <div class="sectionTitle"><b>🦕 Banco de especies</b><span>GENÉTICA</span></div>
   <div id="species"></div>
 
   <div class="card">
-    <h3>🛠️ Herramientas de prueba</h3>
+    <div class="toolTitle">🛠️ Herramientas de prueba</div>
     <div class="grid">
       <button onclick="addResources()">💰 Recursos</button>
       <button onclick="spawnVisitor()">👤 Visitante</button>
@@ -139,6 +223,7 @@ h3{font-size:14px;margin:2px 0 7px}
 <div id="hint">🖱️ Arrastrá para mover la cámara · rueda = zoom · clic = construir · WASD = mover cámara</div>
 <div id="mode">Modo: <b id="modeText">Cámara</b></div>
 <div id="toast"></div>
+<div class="devBadge">● DEV MODE · Recursos altos</div>
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.min.js"></script>
 <script>
@@ -160,11 +245,11 @@ let dinos = [];
 let buildings = [];
 
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x8dc6ee);
+scene.background = new THREE.Color(0x86c9ee);
 scene.fog = new THREE.Fog(0x8dc6ee, 180, 480);
 
 const camera = new THREE.PerspectiveCamera(55, innerWidth/innerHeight, 0.1, 1000);
-camera.position.set(0, 55, 72);
+camera.position.set(0, 72, 105);
 
 const renderer = new THREE.WebGLRenderer({antialias:true});
 renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));
@@ -209,6 +294,17 @@ function addPath(x,z,w,d){
 addPath(0,0,300,8);
 addPath(-65,0,8,170);
 addPath(65,0,8,170);
+/* PLAZA CENTRAL VISIBLE */
+const plaza = new THREE.Mesh(
+ new THREE.CylinderGeometry(18,18,.25,32),
+ new THREE.MeshStandardMaterial({color:0x8d744f,roughness:1})
+);
+plaza.position.set(0,.13,0);
+plaza.receiveShadow=true;
+scene.add(plaza);
+
+
+
 
 /* AGUA DECORATIVA */
 function addLake(x,z,w,d){
@@ -401,7 +497,13 @@ function makeDino(type,x,z){
  return g;
 }
 
-/* ESPECIES */
+
+/* RECINTO INICIAL MUY VISIBLE */
+makeFence(-20,-15,0);
+makeFence(20,-15,0);
+makeFence(0,-30,Math.PI/2);
+makeFence(0,0,Math.PI/2);
+\n/* ESPECIES */
 const species=[
  {name:"Triceratops",emoji:"🦏",cost:500000,dna:1000},
  {name:"Velociraptor",emoji:"🦎",cost:800000,dna:2500},
@@ -651,8 +753,9 @@ window.addEventListener("resize",()=>{
  renderer.setSize(innerWidth,innerHeight);
 });
 
-loadGame();
-updateUI();
+try{loadGame();}catch(e){console.warn("Carga guardado:",e)}
+try{updateUI();}catch(e){console.warn("UI:",e)}
+camera.lookAt(0,0,0);
 animate();
 
 /* Un dinosaurio inicial para probar el motor */
